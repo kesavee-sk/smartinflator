@@ -1,0 +1,9 @@
+﻿node_modules/
+.expo/
+.vscode/
+.env
+*.log
+*.bak
+.DS_Store
+android/app/build/
+build/
