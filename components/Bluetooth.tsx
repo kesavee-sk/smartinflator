@@ -11,7 +11,6 @@ let writeCharacteristic: Characteristic | null = null;
 
 const bleManager = new BleManager();
 
-// Request Bluetooth permissions (Android only)
 export const requestPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
     const granted = await PermissionsAndroid.requestMultiple([
@@ -24,9 +23,8 @@ export const requestPermissions = async (): Promise<boolean> => {
   return true;
 };
 
-// Scan for the ESP32 device and connect
 export const scanAndConnect = async (
-  onData: (pressure: number) => void
+  onData: (rawValue: string) => void
 ): Promise<{ connected: boolean; characteristic: Characteristic | null }> => {
   console.log('🔍 Starting BLE Scan...');
 
@@ -68,13 +66,7 @@ export const scanAndConnect = async (
 
                     if (updatedChar?.value) {
                       const decoded = Buffer.from(updatedChar.value, 'base64').toString();
-                      const match = decoded.match(/P:(\d+)/);
-                      if (match) {
-                        const pressure = parseInt(match[1]);
-                        if (!isNaN(pressure) && isFinite(pressure)) {
-                          onData(pressure);
-                        }
-                      }
+                      onData(decoded); // Pass raw string here
                     }
                   });
 
@@ -99,16 +91,14 @@ export const scanAndConnect = async (
       }
     });
 
-    // Timeout if device isn't found in time
     setTimeout(() => {
       bleManager.stopDeviceScan();
       console.warn('⏱️ Scan timeout');
       resolve({ connected: false, characteristic: null });
-    }, 10000); // 10 seconds
+    }, 10000);
   });
 };
 
-// Send command to the ESP32 via BLE
 export const sendCommand = (command: string) => {
   if (writeCharacteristic) {
     const base64Command = Buffer.from(command).toString('base64');

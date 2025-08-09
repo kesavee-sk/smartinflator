@@ -17,14 +17,19 @@ const HomeScreen = () => {
       return;
     }
 
-    const { connected } = await scanAndConnect((value: number) => {
-      if (!isNaN(value) && isFinite(value)) {
-        setPressureData(prev => [...prev.slice(-29), value]);
+    const { connected } = await scanAndConnect((rawValue: string) =>  {
+      const trimmed = rawValue.trim();
 
-        // Simulate cycle completion detection (you can refine this with your actual BLE message)
-        if (value === 0) {
-          setCyclesCompleted(prev => prev + 1);
-        }
+      // If message is "0", count a cycle
+      if (trimmed === '0') {
+        setCyclesCompleted(prev => prev + 1);
+        return; 
+      }
+
+      // Try parsing number for live graph
+      const parsed = Number(trimmed);
+      if (!isNaN(parsed) && isFinite(parsed)) {
+        setPressureData(prev => [...prev.slice(-29), parsed]);
       }
     });
 
@@ -70,15 +75,15 @@ const HomeScreen = () => {
       <Button title="Connect" onPress={handleConnect} />
 
       {/* Cycle input */}
-    <TextInput
-  style={styles.input}
-  keyboardType="numeric"
-  placeholder="Enter the no. of cycles"
-  placeholderTextColor="#888" // 👈 Darker gray color
-  value={cycleCount}
-  onChangeText={setCycleCount}
-  editable={!isStarted}
-/>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        placeholder="Enter the no. of cycles"
+        placeholderTextColor="#888"
+        value={cycleCount}
+        onChangeText={setCycleCount}
+        editable={!isStarted}
+      />
 
       <Button
         title="Start"
