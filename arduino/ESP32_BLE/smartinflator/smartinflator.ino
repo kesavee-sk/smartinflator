@@ -7,8 +7,6 @@
 
 #define MOTOR_PIN    18
 #define SOLENOID_PIN 19
-
-// Phase durations (ms) — as you requested
 const unsigned long INFLATE_MS = 10000UL;  // 10 s
 const unsigned long HOLD_MS    = 10000UL;  // 10 s
 const unsigned long DEFLATE_MS = 15000UL;  // 15 s
@@ -34,7 +32,7 @@ const unsigned long NOTIFY_INTERVAL = 1000UL; // send updates every 1s
 // Forward
 void enterPhase(Phase p);
 
-// ---------------- BLE callbacks ----------------
+// BLE callbacks
 class MyServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *pServer) override {
     deviceConnected = true;
@@ -93,7 +91,7 @@ class MyCharacteristicCallbacks : public BLECharacteristicCallbacks {
   }
 };
 
-// ---------------- helpers ----------------
+// helpers 
 void sendIfConnected(const String &s) {
   if (deviceConnected && pCharacteristic) {
     pCharacteristic->setValue(s.c_str());
@@ -133,7 +131,7 @@ void enterPhase(Phase p) {
   }
 }
 
-// ---------------- Arduino setup ----------------
+//  Arduino setup 
 void setup() {
   Serial.begin(115200);
   pinMode(MOTOR_PIN, OUTPUT);
@@ -167,7 +165,7 @@ void setup() {
   phase = IDLE;
 }
 
-// ---------------- Main loop (state machine) ----------------
+//  Main loop (state machine) 
 void loop() {
   unsigned long now = millis();
 

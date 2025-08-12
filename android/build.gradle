@@ -1,17 +1,17 @@
 // android/build.gradle
 
-// ✅ Add this block at the very top to fix the ndkVersion issue
+// Fix for NDK version issue
 ext {
     ndkVersion = "25.2.9519653"
 }
 
 buildscript {
     ext {
+        kotlinVersion = '1.9.10'          // Make sure this matches gradle.properties
         buildToolsVersion = "34.0.0"
         minSdkVersion = 24
         compileSdkVersion = 34
         targetSdkVersion = 34
-        kotlinVersion = "1.6.10"
     }
     repositories {
         google()
@@ -19,14 +19,14 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:7.4.1")
-        classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.facebook.react:react-native-gradle-plugin")
     }
 }
 
 allprojects {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
     }
 }

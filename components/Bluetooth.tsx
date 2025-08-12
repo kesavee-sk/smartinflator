@@ -26,27 +26,27 @@ export const requestPermissions = async (): Promise<boolean> => {
 export const scanAndConnect = async (
   onData: (rawValue: string) => void
 ): Promise<{ connected: boolean; characteristic: Characteristic | null }> => {
-  console.log('🔍 Starting BLE Scan...');
+  console.log('Starting BLE Scan...');
 
   return new Promise(resolve => {
     bleManager.startDeviceScan(null, null, async (error, device) => {
       if (error) {
-        console.error('❌ Scan error:', error);
+        console.error('Scan error:', error);
         resolve({ connected: false, characteristic: null });
         return;
       }
 
       if (device?.name) {
-        console.log('🔎 Found device:', device.name);
+        console.log(' Found device:', device.name);
       }
 
       if (device && device.name === DEVICE_NAME) {
-        console.log('✅ Target device found. Attempting to connect...');
+        console.log('Target device found. Attempting to connect...');
         bleManager.stopDeviceScan();
 
         try {
           const connected = await device.connect();
-          console.log('🔗 Connected to device:', connected.name);
+          console.log('Connected to device:', connected.name);
 
           await connected.discoverAllServicesAndCharacteristics();
           const services = await connected.services();
@@ -56,11 +56,11 @@ export const scanAndConnect = async (
               const characteristics = await service.characteristics();
               for (const char of characteristics) {
                 if (char.uuid.toLowerCase() === CHARACTERISTIC_UUID) {
-                  console.log('🧬 Found correct characteristic. Setting up monitor...');
+                  console.log(' Found correct characteristic. Setting up monitor...');
 
                   char.monitor((err, updatedChar) => {
                     if (err) {
-                      console.error('❌ Monitor error:', err);
+                      console.error('Monitor error:', err);
                       return;
                     }
 
@@ -73,7 +73,7 @@ export const scanAndConnect = async (
                   connectedDevice = connected;
                   writeCharacteristic = char;
 
-                  console.log('✅ Connection and monitoring established.');
+                  console.log('Connection and monitoring established.');
                   resolve({ connected: true, characteristic: char });
                   return;
                 }
@@ -81,11 +81,11 @@ export const scanAndConnect = async (
             }
           }
 
-          console.warn('⚠️ Matching service or characteristic not found.');
+          console.warn('Matching service or characteristic not found.');
           resolve({ connected: false, characteristic: null });
 
         } catch (e) {
-          console.error('❌ Connection error:', e);
+          console.error('Connection error:', e);
           resolve({ connected: false, characteristic: null });
         }
       }
@@ -93,7 +93,7 @@ export const scanAndConnect = async (
 
     setTimeout(() => {
       bleManager.stopDeviceScan();
-      console.warn('⏱️ Scan timeout');
+      console.warn('⏱Scan timeout');
       resolve({ connected: false, characteristic: null });
     }, 10000);
   });
@@ -104,9 +104,9 @@ export const sendCommand = (command: string) => {
     const base64Command = Buffer.from(command).toString('base64');
     writeCharacteristic
       .writeWithResponse(base64Command)
-      .then(() => console.log('✅ Command sent:', command))
-      .catch(err => console.error('❌ Failed to send command:', err));
+      .then(() => console.log('Command sent:', command))
+      .catch(err => console.error('Failed to send command:', err));
   } else {
-    console.warn('⚠️ Cannot send command. Characteristic not available.');
+    console.warn('Cannot send command. Characteristic not available.');
   }
 };
